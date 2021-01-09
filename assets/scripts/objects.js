@@ -1,32 +1,84 @@
 const addMovieBtn = document.getElementById('add-movie-btn');
 const searchBtn = document.getElementById('search-btn');
-
+const title = document.getElementById('title');
+const extraName = document.getElementById('extra-name');
+const extraValue = document.getElementById('extra-value');
 const movies = [];
 
 
+
+const clearUserInput = () => {
+    title.value = '';
+    extraName.value = '';
+    extraValue.value = '';
+};
+
+const renderMovieElement = (filter = '') => {
+    const movieList = document.getElementById('movie-list');
+
+    if(movies.length === 0){
+        movieList.classList.remove('visible');
+        return;
+    } else {
+        movieList.classList.add('visible');
+    }
+    movieList.innerHTML = '';
+
+    const filteredTerm = !filter ? movies : movies.filter((movie) => movie.info.title.includes(filter));
+
+    filteredTerm.forEach((movie) => {
+        const movieEl = document.createElement('li');
+        const {info, ...otherProperties} = movie;
+        console.log(otherProperties);
+        let {getFormattedTitle} = movie;
+        //getFormattedTitle = getFormattedTitle.bind(movie);
+        //const {title: movieTitle} = info;
+        let text = getFormattedTitle.call(movie) + ' - ';
+        for(const key in info){
+            if(key !== 'title'){
+                text = text + `${key} : ${info[key]}`;
+            }
+        }
+        movieEl.textContent = text;
+        movieList.append(movieEl);
+    });
+
+
+};
+
 const addMovieHandler = () => {
-    const title = document.getElementById('title').value;
-    const extraName = document.getElementById('extra-name').value;
-    const extraValue = document.getElementById('extra-value').value;
+    titleValue = title.value;
+    extraNameValue = extraName.value;
+    extraValueValue = extraValue.value;
 
     if(
-        title.trim() === '' || 
-        extraName.trim() === '' || 
-        extraValue.trim() === ''){
+        titleValue.trim() === '' || 
+        extraNameValue.trim() === '' || 
+        extraValueValue.trim() === ''){
             return
     }
     
     const newMovie = {
         info: {
-            title: title,
-            [extraName]: extraValue
+            title: titleValue,
+            [extraNameValue]: extraValueValue
         },
-        id: Math.random()
+        id: Math.random(),
+        getFormattedTitle() {
+            console.log(this);
+            return this.info.title.toUpperCase();
+        }
     }
 
     movies.push(newMovie);
-    console.log(newMovie);
+    renderMovieElement();
+    clearUserInput();
 };
 
+const filterMovieHandler = () => {
+    const filterTitle = document.getElementById('filter-title').value;
+    renderMovieElement(filterTitle);
+};
 
 addMovieBtn.addEventListener('click', addMovieHandler);
+searchBtn.addEventListener('click', filterMovieHandler);
